@@ -1,3 +1,5 @@
+package aufgabe;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -5,17 +7,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-//        int[] array = {1, 3, 5, 2, 3, 2};
-//        int oldNum = 0;
-//        for (int i:
-//             array) {
-//            System.out.println(i+oldNum);
-//            oldNum = i;
-//        }
 
 public class Main {
     static ArrayList<Line> lineArrayList;
-
     public static Station findStationByNameOrCreate(String name){
         for (Line line:
                 lineArrayList) {
@@ -26,17 +20,18 @@ public class Main {
                 }
             }
         }
-
         return new Station(name);
     }
 
     public static void main(String[] args) throws IOException{
-
+        //ein Dateiobjekt aus dem Ordner Lines erstellen
         File dir = new File("Lines");
+        //alle Dateien aus dem Ordner ziehen
         File[] files = dir.listFiles();
-
+        //eine leere Liste initialisiert
         lineArrayList = new ArrayList<>();
-
+        //Leerheitstest machen
+        assert files != null;
         for (File file : files) {
             if(file.isFile()) {
                 BufferedReader inputStream = null;
@@ -44,19 +39,16 @@ public class Main {
                 try {
                     inputStream = new BufferedReader(new FileReader(file, StandardCharsets.UTF_16));
                     Line myLine = new Line(file.getName().replace(".txt", ""));
-//                    System.out.println(myLine.getName());
                     Station oldStation = null;
+
                     while ((line = inputStream.readLine()) != null) {
-//                        System.out.println(line);
                         Station myStation = findStationByNameOrCreate(line);
                         if (oldStation != null)
-                            myStation.addNeighbor(oldStation);
-                        oldStation = myStation;
+                            myStation.addNeighbor(oldStation); //fügt den vorherigen Sender als Nachbarn hinzu
+                        oldStation = myStation; //setzt die vorherige Station mit der neuen Station gleich
                         myLine.addStation(myStation);
-//                        System.out.println(myStation.getName());
                     }
-                    lineArrayList.add(myLine);
-//                    System.out.println();
+                    lineArrayList.add(myLine); //die Liste mit Linien aus dem txt auffüllen
                 }catch(IOException e) {
                     System.out.println(e);
                 }
@@ -67,7 +59,6 @@ public class Main {
                 }
             }
         }
-
 
         for (Line line:
              lineArrayList) {
@@ -85,39 +76,46 @@ public class Main {
             }
             System.out.println();
         }
+
+
         Station start;
         Station finish;
-
         Scanner scanner = new Scanner(System.in);
         System.out.println("=========================================");
-        System.out.println("Please enter a Start point: ");
+        System.out.println("Bitte geben Sie einen Startpunkt ein: ");
         start = findStationByNameOrCreate(scanner.nextLine());
         System.out.println(start.getName());
 
         System.out.println("=========================================");
-        System.out.println("Please enter an End point: ");
+        System.out.println("Bitte geben Sie einen Endpunkt ein: ");
         finish = findStationByNameOrCreate(scanner.nextLine());
-        System.out.println(finish.getName());
 
-        //прописать смены линий
         List<Station> path = findShortestPath(start, finish);
         if (path != null){
+            System.out.println("Juhu!\nKurz Weg wurde gefunden:\n=========================================");
+
             for (Station st:
                     path) {
                 System.out.println(st.getName());
             }
         }
         else{
-            System.out.println("Path not found");
+            System.out.println("Weg ist leider nicht gefunden :(");
         }
 }
 
     public static List<Station> findShortestPath (Station start, Station end){
+        // Erstellen Sie eine Warteschlange für den Algorithmus und setzen Sie sie mit den besuchten Stationen
+        // Erstellen Sie eine Warteschlange für den BFS-Algorithmus und einen Satz von besuchten Stationen, um die bereits besuchten Stationen zu verfolgen.
         Queue<List<Station>> queue = new LinkedList<>();
         Set<Station> visited = new HashSet<>();
+
+        // Erstellen Sie eine Liste, um den aktuellen Pfad zu speichern, und fügen Sie ihr einen Startbahnhof hinzu.
         List<Station> initialPath = new ArrayList<>();
+
         initialPath.add(start);
         queue.add(initialPath);
+
         while (!queue.isEmpty()) {
             List<Station> path = queue.remove();
             Station lastStation = path.get(path.size() - 1);
@@ -135,5 +133,4 @@ public class Main {
         }
         return null;
     }
-
 }
